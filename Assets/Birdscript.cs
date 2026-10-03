@@ -1,0 +1,56 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+ 
+public class BirdScript : MonoBehaviour
+{
+    public Rigidbody2D myRigidbody;
+    public float flapStrength;
+    public LogicScript logic;
+    public bool birdIsAlive = true;
+    private Camera mainCamera;
+ 
+    // Start is called before the first frame update
+    void Start()
+    {
+        logic = GameObject.FindGameObjectWithTag("Logic").GetComponent<LogicScript>();
+        mainCamera = Camera.main;
+    }
+ 
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && birdIsAlive)
+        {
+            myRigidbody.linearVelocity = Vector2.up * flapStrength;
+        }
+
+        if (birdIsAlive && mainCamera != null)
+        {
+            float bottomBoundary = mainCamera.transform.position.y - mainCamera.orthographicSize;
+            float topBoundary = mainCamera.transform.position.y + mainCamera.orthographicSize;
+
+            if (transform.position.y < bottomBoundary || transform.position.y > topBoundary)
+            {
+                EndGame();
+            }
+        }
+    }
+ 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        EndGame();
+    }
+
+    private void EndGame()
+    {
+        if (!birdIsAlive)
+        {
+            return;
+        }
+
+        birdIsAlive = false;
+        myRigidbody.linearVelocity = Vector2.zero;
+        logic.gameOver();
+    }
+}
